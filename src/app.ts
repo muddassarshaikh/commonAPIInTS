@@ -1,10 +1,14 @@
 import express from 'express';
+import createError from 'http-errors';
 import cookieParser from 'cookie-parser';
 import * as path from 'path';
 import morgan from 'morgan';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
+import { errorHandlerMiddleware, errorHandler } from './common/error';
+import { stream } from './common/winston';
+import apiRouter from './api/index';
 
 const app = express();
 
@@ -13,7 +17,7 @@ app.set('views', path.join(__dirname, 'views'));
 
 // HTTP request logger middleware for node.js
 // app.use(morgan('combined', { stream: winston.stream }));
-app.use(morgan('combined'));
+app.use(morgan('combined', { stream }));
 
 /**
  * Parse incoming request bodies in a middleware before your handlers,
@@ -45,8 +49,21 @@ app.use(
   })
 );
 
-app.get('/', (req, res) => {
-  res.send('The sedulous hyena ate the antelope!');
+// API Calling
+app.use('/api', apiRouter);
+
+// catch 404 and forward to error handler
+app.use(function (req, res, next) {
+  next(createError(404));
+});
+
+process.on('uncaughtException', function (err) {
+  errorHandler(err);
+});
+
+// error handler
+app.use(function (err, req, res, next) {
+  errorHandlerMiddleware(err, req, res);
 });
 
 export default app;

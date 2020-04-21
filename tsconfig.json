@@ -3,9 +3,13 @@
     "module": "commonjs",
     "esModuleInterop": true,
     "target": "es6",
+    "allowJs": true,
+    "checkJs": true,
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "dist"
   },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"],
   "lib": ["es2015"]
 }
